@@ -1,6 +1,6 @@
-## UART set up
-###🔌 Step 1: Wiring the Connections
-**Connect the TTL-to-USB adapter to the Raspberry Pi GPIO like this:**
+------UART set up------
+Step 1: Wiring the Connections
+Connect the TTL-to-USB adapter to the Raspberry Pi GPIO like this:
 
 TTL-to-USB	Raspberry Pi GPIO
 TX	GPIO 15 (RXD, Pin 10)
@@ -9,60 +9,40 @@ GND	GND (Pin 6, for example)
 
 ⚠️ Important: Do NOT connect the 5V from the adapter to the Pi — use only TX, RX, and GND.
 
-⚙️ Step 2: Enable UART on Raspberry Pi
+Step 2: Enable UART on Raspberry Pi
 Edit the boot config:
 
-bash
-Copy
-Edit
+
 sudo raspi-config
-Go to:
-
-pgsql
-Copy
-Edit
 Interface Options -> Serial Port
-Disable the serial console login shell: No
 
+Disable the serial console login shell: No
 Enable serial hardware port: Yes
 
 Reboot the Pi:
 
-bash
-Copy
-Edit
 sudo reboot
-🧪 Step 3: Test UART Transmission
+
+Step 3: Test UART Transmission
 On your computer (connected via TTL adapter), open a serial terminal with the correct port and settings:
 
 Baud rate: 115200
-
 8 data bits
-
 No parity
-
 1 stop bit (8N1)
-
 No flow control
+
 
 On the Raspberry Pi, send a test message:
 
-bash
-Copy
-Edit
 echo "Hello from Pi" > /dev/serial0
 If your UART is working, you should see "Hello from Pi" in your serial terminal.
 
-🔄 Optional: Loopback Test on Pi (no adapter)
+Optional: Loopback Test on Pi (no adapter)
 If you want to test purely on the Pi:
 
 Connect GPIO 14 (TXD) to GPIO 15 (RXD) directly with a jumper wire.
 
 Run:
-
-bash
-Copy
-Edit
 sudo apt install minicom
-minicom -b 115200 -o -D /dev/serial0
-Anything you type should echo back if UART is working.
+minicom -b 115200 -o -D serial0
