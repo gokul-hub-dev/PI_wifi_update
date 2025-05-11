@@ -46,3 +46,50 @@ Connect GPIO 14 (TXD) to GPIO 15 (RXD) directly with a jumper wire.
 Run:
 sudo apt install minicom
 minicom -b 115200 -o -D serial0
+
+
+
+********************WIFI Setup********************
+Step-by-Step Guide
+1. Generate the WPA config line
+Run this command (replace SSID and PASSWORD with your actual values):
+
+wpa_passphrase "Your_SSID" "Your_PASSWORD"
+
+It will output something like:
+network={
+    ssid="Your_SSID"
+    #psk="Your_PASSWORD"
+    psk=long_hex_value
+}
+
+2. Append or replace it in your config file
+Open the config file:
+
+"sudo nano /etc/wpa_supplicant/wpa_supplicant.conf"
+
+If there's an existing network={...} block, you can replace it.
+
+Or just append the new one to the bottom.
+
+Example final content:
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+country=US
+
+network={
+    ssid="Your_SSID"
+    psk=long_hex_value
+}
+Make sure ctrl_interface and update_config are there as shown above.
+
+Save and exit (Ctrl+O, then Enter, then Ctrl+X).
+
+3.disable NetworkManager first:
+run:
+sudo systemctl stop NetworkManager
+sudo systemctl disable NetworkManager
+
+4.manage Wi-Fi manually:
+sudo wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf -D nl80211,wext
+sudo dhclient wlan0
