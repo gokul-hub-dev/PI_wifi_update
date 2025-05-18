@@ -1,0 +1,3 @@
+#curl -L -o raspi_wifi.txt "https://docs.google.com/document/d/16l2YE1gWtim0pHQOhUJGaDphZdE4iGQ2Hfn8F246jE4/export?format=txt"
+fileId="16l2YE1gWtim0pHQOhUJGaDphZdE4iGQ2Hfn8F246jE4"
+fileName="raspi_wifi.txt"
