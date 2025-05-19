@@ -9,6 +9,7 @@ while true; do
 		wifi_lost_counter=0
 	fi
 	if [ $wifi_lost_counter -ge 20 ]; then
+		echo "Created flag for initializing lnf" >> /tmp/wifi.log
 		touch "$wifi_lost_flag"
 	fi
 	sleep 6

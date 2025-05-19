@@ -2,25 +2,26 @@
 
 wifi_lost_flag="/tmp/.wifi_connection_lost"
 wifi_lnf_count=0
+LOGS="/tmp/wifi.log"
 
 if [ "$(systemctl is-active NetworkManager)"="active" ]; then
-    echo "NetworkManager is running. Stopping it..."
+    echo "NetworkManager is running. Stopping it..." >> "$LOGS"
     sudo systemctl stop NetworkManager
 else
-    echo "NetworkManager is already stopped."
+    echo "NetworkManager is already stopped." >> "$LOGS"
 fi
 
 if [ "$(systemctl is-enabled NetworkManager)"="enabled" ]; then
-    echo "NetworkManager is enabled. Disabling it..."
+    echo "NetworkManager is enabled. Disabling it..." >> "$LOGS"
     sudo systemctl disable NetworkManager
 else
-    echo "NetworkManager is already disabled."
+    echo "NetworkManager is already disabled." >> "$LOGS"
 fi
 
 function restart_wpa(){
-	echo "kill wpa_supplicat"
+	echo "kill wpa_supplicat" >> "$LOGS"
 	sudo killall wpa_supplicant
-	cat /etc/wpa_supplicant/wpa_supplicant.conf
+	cat /etc/wpa_supplicant/wpa_supplicant.conf >> "$LOGS"
 	sudo wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf -D nl80211,wext
 	sudo dhclient wlan0
 }
@@ -32,13 +33,13 @@ function Download_wifi_credentials(){
 	#curl -L -o "$WIFIFILE" "https://drive.google.com/uc?export=download&id=${FILEID}"
 	curl -L -o "$WIFIFILE" "https://docs.google.com/document/d/${FILEID}/export?format=txt"
 	if [ $? -ne 0 ]; then
-		echo "Download wifi credentials failed"
+		echo "Download wifi credentials failed" >> "$LOGS"
       		return 1
 	fi
 	ssid=`cat "$WIFIFILE" | grep ssid | awk -F'"' '{print $2}'`
 	pass=`cat "$WIFIFILE" | grep password | awk -F'"' '{print $2}'`
-	echo "ssid : $ssid"
-	echo "pass : $pass"
+	echo "ssid : $ssid" >> "$LOGS"
+	echo "pass : $pass" >> "$LOGS"
 	if [ -n "$ssid" ] || [ -n "$pass" ]; then
 		sed -i "/^\s*ssid=/c\    ssid=\"$ssid\"" /etc/wpa_supplicant/wpa_supplicant.conf
 		sed -i "/^\s*psk=/c\    psk=\"$pass\"" /etc/wpa_supplicant/wpa_supplicant.conf
@@ -47,14 +48,14 @@ function Download_wifi_credentials(){
 
 pidof_wpa=$(pgrep wpa_supplicant)
 if [ -n "$pidof_wpa" ]; then
-	echo "restart wpa"
+	echo "restart wpa" >> "$LOGS"
 	restart_wpa
 fi
 
 pid_wifi_monitor=$(pgrep wifi_monitor.sh)
 if [ -z "$pid_wifi_monitor" ]; then
-    ./wifi_monitor.sh &
-    echo "execute wifi_monitor.sh"
+    /opt/wifi/wifi_monitor.sh &
+    echo "execute wifi_monitor.sh" >> "$LOGS"
 fi
 while true; do
 	if [ -f "$wifi_lost_flag" ]; then
@@ -67,11 +68,11 @@ while true; do
 		#cp -f /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/last_wifi.conf
 		#cp -f /etc/wpa_supplicant/lnf_wifi.conf /etc/wpa_supplicant/wpa_supplicant.conf
 		restart_wpa
-		echo "connect to lnf"
+		echo "connect to lnf" >> "$LOGS"
 		sleep 40
 		ping -c 3 -w 3 8.8.8.8 > /dev/null 2>&1
 		if [ $? -eq 0 ]; then
-			echo "Download wifi creadentials from cloud"
+			echo "Download wifi creadentials from cloud" >> "$LOGS"
 			Download_wifi_credentials
 			if [ $? -eq 0 ]; then
 				restart_wpa				
@@ -96,6 +97,6 @@ while true; do
 			fi
 		fi
         fi
-	echo "wifi_connector.sh running..."
+	echo "wifi_connector.sh running..." >> "$LOGS"
         sleep 10
 done
