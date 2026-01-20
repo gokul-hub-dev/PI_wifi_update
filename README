@@ -97,8 +97,17 @@ sudo dhclient wlan0
 
 
 ############################ INSTALLATION ########################
+Open the CloudFileDetails.txt update file ID and file name.
+fileName="raspi_wifi.txt"
+
+raspi_wifi.txt should have below detail's:
+ssid="ssid"
+password="password"
+
 sudo vim /etc/rc.local
 sudo vim /opt/wifi/wifi_connector.sh &
 chmod +x /opt/wifi/wifi_connector.sh
 chmod +x /opt/wifi/wifi_monitor.sh
 sudo chmod +x /etc/rc.local
+
+
